@@ -48,17 +48,17 @@ const navConfig = [
       {
         title: "Product Feature",
         links: [
-          { label: "Popular Product", href: "/popular-product" },
-          { label: "New Product",     href: "/shop/new"     },
-          { label: "Shops",           href: "/store"        },
+          { label: "Popular Product", href: "/popular-product"},
+          { label: "New Product",     href: "/new-product"},
+          { label: "Shops",           href: "/vendor-grid"},
         ]
       },
       {
         title: "Shop Others",
         links: [
-          { label: "Cart",        href: "/cart"      },
-          { label: "Checkout",    href: "/checkout"  },
-          { label: "Track Order", href: "/track-order"},
+          { label: "Cart",        href: "/cart"},
+          { label: "Checkout",    href: "/cart"},
+          { label: "Track Order", href: "/account"},
             ]
           },
         ],
@@ -487,13 +487,13 @@ function MegaDropdown({ data }) {
               className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
             />
           </div>
-          <a
-            href="#"
+          <Link
+            to="/blog-details"
             className="relative z-10 px-5 py-2 text-white text-sm font-bold rounded-lg transition-all shadow-md"
             style={{ background: GREEN }}
           >
             {data.promo.cta}
-          </a>
+          </Link>
         </div>
       </div>
     </div>

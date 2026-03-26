@@ -1,11 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-//import useThemeLink from "../../../../../shared/hooks/ThemeLink";
 import Groc01 from "@/assets/images/category/01.png";
-
-const GREEN      = "#629d23";
-const GREEN_DARK = "#4e7e1a";
-const GREEN_PALE = "#f0fae8";
+import { GREEN, GREEN_DARK, GREEN_PALE } from "@/constant";
 
 /* ═══════════════════════════════════════════════════
    SCROLL ANIMATION HOOK

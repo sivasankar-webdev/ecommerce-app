@@ -1,274 +1,389 @@
 import { useState } from "react";
-import Groc01 from "@/assets/images/grocery/01.jpg";
-import Groc19 from "@/assets/images/grocery/19.jpg";
-import Groc20 from "@/assets/images/grocery/20.jpg";
-import Groc21 from "@/assets/images/grocery/21.jpg";
-import Groc22 from "@/assets/images/grocery/22.jpg";
-import Groc23 from "@/assets/images/grocery/23.jpg";
-import Groc24 from "@/assets/images/grocery/24.jpg";
+import { useDispatch } from "react-redux";
+import { addItem as addWishlist } from "@/features/wishlist/wishlistSlice";
+import { addItem as addCartItem } from "@/features/cart/cartSlice";
+import { resolveImage } from "@/utils/imageMap";
+
+/* ══════════════════════════════════════════
+   PRODUCT DATA  (same shape as PopularProducts)
+   imageKey stored in DB → resolved via resolveImage()
+══════════════════════════════════════════ */
+const allProducts = {
+  "Frozen Foods": [
+    { id:"s1",  imageKey:"grocery/01.jpg", name:"Firebase business makes your profit",    pack:"500g Pack", price:50,  originalPrice:67,  discount:25, sku:"SKU-SF01", stock:12, rating:5, description:"High quality frozen product for everyday family meals." },
+    { id:"s2",  imageKey:"grocery/19.jpg", name:"Netlyfy business makes your profit",     pack:"500g Pack", price:19,  originalPrice:25,  discount:24, sku:"SKU-SF02", stock:20, rating:5, description:"Best-seller frozen pack, ready in minutes." },
+    { id:"s3",  imageKey:"grocery/20.jpg", name:"Details business makes your profit",     pack:"500g Pack", price:90,  originalPrice:120, discount:25, sku:"SKU-SF03", stock:5,  rating:5, description:"Premium selection frozen food, great value for money." },
+    { id:"s4",  imageKey:"grocery/21.jpg", name:"Profitable business makes your profit",  pack:"500g Pack", price:30,  originalPrice:40,  discount:25, sku:"SKU-SF04", stock:14, rating:5, description:"Popular frozen item, fresh-frozen to lock in nutrients." },
+    { id:"s5",  imageKey:"grocery/22.jpg", name:"Valuable business makes your profit",    pack:"500g Pack", price:16,  originalPrice:21,  discount:24, sku:"SKU-SF05", stock:9,  rating:5, description:"Great value everyday frozen food for the whole family." },
+    { id:"s6",  imageKey:"grocery/23.jpg", name:"Firebase business deluxe pack",          pack:"500g Pack", price:50,  originalPrice:67,  discount:25, sku:"SKU-SF06", stock:7,  rating:4, description:"Deluxe frozen pack with enhanced flavour profile." },
+    { id:"s7",  imageKey:"grocery/24.jpg", name:"Netlyfy business premium pack",          pack:"500g Pack", price:19,  originalPrice:26,  discount:27, sku:"SKU-SF07", stock:18, rating:5, description:"Premium frozen product, perfect for quick healthy meals." },
+    { id:"s8",  imageKey:"grocery/19.jpg", name:"Valuable savings frozen bundle",         pack:"500g Pack", price:16,  originalPrice:22,  discount:27, sku:"SKU-SF08", stock:25, rating:5, description:"Bundle deal on our best-selling frozen foods range." },
+    { id:"s9",  imageKey:"grocery/20.jpg", name:"System business frozen daily",           pack:"500g Pack", price:15,  originalPrice:20,  discount:25, sku:"SKU-SF09", stock:11, rating:5, description:"Daily frozen essentials at unbeatable value pricing." },
+    { id:"s10", imageKey:"grocery/21.jpg", name:"Details premium frozen selection",       pack:"500g Pack", price:90,  originalPrice:120, discount:25, sku:"SKU-SF10", stock:4,  rating:4, description:"Top-tier frozen food pack for discerning buyers." },
+  ],
+  "Diet Foods": [
+    { id:"s11", imageKey:"grocery/21.jpg", name:"Green salad diet pack fresh daily",      pack:"250g Pack", price:22,  originalPrice:30,  discount:27, sku:"SKU-SD01", stock:30, rating:5, description:"Fresh daily salad mix, low calorie, high fiber." },
+    { id:"s12", imageKey:"grocery/20.jpg", name:"Berry detox smoothie mix organic",       pack:"300g Pack", price:35,  originalPrice:46,  discount:24, sku:"SKU-SD02", stock:15, rating:4, description:"Organic berry blend for detox smoothies, no added sugar." },
+    { id:"s13", imageKey:"grocery/19.jpg", name:"Oatmeal power breakfast blend",          pack:"500g Pack", price:18,  originalPrice:24,  discount:25, sku:"SKU-SD03", stock:0,  rating:4, description:"High-protein oatmeal breakfast blend to fuel your morning." },
+    { id:"s14", imageKey:"grocery/24.jpg", name:"Natural juice diet drink low sugar",     pack:"1L Bottle", price:12,  originalPrice:16,  discount:25, sku:"SKU-SD04", stock:40, rating:5, description:"Cold-pressed natural juice, low sugar, diet-friendly." },
+    { id:"s15", imageKey:"grocery/23.jpg", name:"Low calorie meal prep fresh pack",       pack:"400g Pack", price:28,  originalPrice:37,  discount:24, sku:"SKU-SD05", stock:18, rating:4, description:"Ready-to-use low calorie meal prep essentials." },
+    { id:"s16", imageKey:"grocery/24.jpg", name:"Protein bar chocolate almond crunch",   pack:"60g Bar",   price:5,   originalPrice:7,   discount:29, sku:"SKU-SD06", stock:60, rating:5, description:"Rich chocolate almond protein bar, perfect post-workout snack." },
+    { id:"s17", imageKey:"grocery/19.jpg", name:"Tropical slim juice blend daily",        pack:"500ml",     price:10,  originalPrice:13,  discount:23, sku:"SKU-SD07", stock:22, rating:5, description:"Daily tropical juice blend, great for weight management." },
+    { id:"s18", imageKey:"grocery/20.jpg", name:"Whole grain crackers baked light",       pack:"200g Pack", price:8,   originalPrice:11,  discount:27, sku:"SKU-SD08", stock:35, rating:4, description:"Oven-baked whole grain crackers, low fat and light." },
+    { id:"s19", imageKey:"grocery/24.jpg", name:"Keto snack mix nuts and seeds",          pack:"300g Pack", price:20,  originalPrice:27,  discount:26, sku:"SKU-SD09", stock:16, rating:5, description:"Keto-friendly snack mix with premium nuts and seeds." },
+    { id:"s20", imageKey:"grocery/20.jpg", name:"Fiber boost cereal morning fresh",       pack:"500g Pack", price:15,  originalPrice:20,  discount:25, sku:"SKU-SD10", stock:28, rating:5, description:"High-fibre morning cereal for a healthy digestive system." },
+  ],
+  "Healthy Foods": [
+    { id:"s21", imageKey:"grocery/24.jpg", name:"Fresh mixed fruit basket organic",       pack:"1kg Pack",  price:45,  originalPrice:60,  discount:25, sku:"SKU-SH01", stock:18, rating:5, description:"Seasonal organic mixed fruit basket, sourced from local farms." },
+    { id:"s22", imageKey:"grocery/20.jpg", name:"Tropical mango lemon juice blend",       pack:"500ml",     price:28,  originalPrice:37,  discount:24, sku:"SKU-SH02", stock:22, rating:4, description:"Refreshing tropical mango and lemon cold-pressed juice." },
+    { id:"s23", imageKey:"grocery/21.jpg", name:"Whole grain artisan bread loaf",         pack:"400g Loaf", price:8,   originalPrice:11,  discount:27, sku:"SKU-SH03", stock:10, rating:5, description:"Stone-baked artisan whole grain loaf, no preservatives." },
+    { id:"s24", imageKey:"grocery/19.jpg", name:"Wild salmon fillet premium quality",     pack:"300g Pack", price:55,  originalPrice:73,  discount:25, sku:"SKU-SH04", stock:7,  rating:5, description:"Wild-caught Atlantic salmon fillet, rich in Omega-3." },
+    { id:"s25", imageKey:"grocery/21.jpg", name:"Organic quinoa superfood grain pack",   pack:"500g Pack", price:18,  originalPrice:24,  discount:25, sku:"SKU-SH05", stock:20, rating:5, description:"Premium organic quinoa, complete protein superfood grain." },
+    { id:"s26", imageKey:"grocery/23.jpg", name:"Avocado spread healthy fat blend",      pack:"200g Pack", price:12,  originalPrice:16,  discount:25, sku:"SKU-SH06", stock:13, rating:4, description:"Creamy avocado spread with healthy monounsaturated fats." },
+    { id:"s27", imageKey:"grocery/20.jpg", name:"Greek yogurt plain probiotic rich",     pack:"500g Cup",  price:7,   originalPrice:9,   discount:22, sku:"SKU-SH07", stock:32, rating:5, description:"Authentic Greek yogurt packed with live probiotic cultures." },
+    { id:"s28", imageKey:"grocery/23.jpg", name:"Chia seeds omega boost superfood",      pack:"250g Pack", price:14,  originalPrice:19,  discount:26, sku:"SKU-SH08", stock:24, rating:5, description:"Chia seeds rich in Omega-3, fibre, and antioxidants." },
+    { id:"s29", imageKey:"grocery/22.jpg", name:"Almond butter crunchy natural spread",  pack:"300g Jar",  price:16,  originalPrice:21,  discount:24, sku:"SKU-SH09", stock:17, rating:4, description:"100% natural crunchy almond butter with no added sugar." },
+    { id:"s30", imageKey:"grocery/19.jpg", name:"Turmeric golden milk powder blend",     pack:"200g Pack", price:22,  originalPrice:29,  discount:24, sku:"SKU-SH10", stock:14, rating:5, description:"Anti-inflammatory golden milk blend with premium turmeric." },
+  ],
+  "Vitamin Items": [
+    { id:"s31", imageKey:"grocery/20.jpg", name:"Vitamin C gummies citrus flavour",      pack:"60 Gummies",price:15,  originalPrice:20,  discount:25, sku:"SKU-SV01", stock:50, rating:5, description:"Chewable Vitamin C gummies with natural citrus flavour." },
+    { id:"s32", imageKey:"grocery/21.jpg", name:"Omega 3 fish oil capsules daily",       pack:"90 Caps",   price:30,  originalPrice:40,  discount:25, sku:"SKU-SV02", stock:35, rating:5, description:"High-strength Omega-3 fish oil capsules for heart and brain health." },
+    { id:"s33", imageKey:"grocery/20.jpg", name:"Multivitamin complete daily dose",      pack:"120 Tabs",  price:25,  originalPrice:33,  discount:24, sku:"SKU-SV03", stock:28, rating:4, description:"Complete daily multivitamin with 23 essential vitamins and minerals." },
+    { id:"s34", imageKey:"grocery/19.jpg", name:"Iron & zinc mineral boost complex",     pack:"60 Caps",   price:20,  originalPrice:27,  discount:26, sku:"SKU-SV04", stock:0,  rating:5, description:"Iron and zinc complex for energy, immunity, and metabolic function." },
+    { id:"s35", imageKey:"grocery/23.jpg", name:"Magnesium glycinate sleep support",     pack:"90 Caps",   price:18,  originalPrice:24,  discount:25, sku:"SKU-SV05", stock:19, rating:5, description:"Highly bioavailable magnesium glycinate for sleep and relaxation." },
+    { id:"s36", imageKey:"grocery/21.jpg", name:"Vitamin D3 sunlight supplement",        pack:"90 Softgels",price:12, originalPrice:16,  discount:25, sku:"SKU-SV06", stock:42, rating:4, description:"High-potency Vitamin D3 for bone health and immune support." },
+    { id:"s37", imageKey:"grocery/19.jpg", name:"B-complex energy boost formula",        pack:"60 Tabs",   price:14,  originalPrice:19,  discount:26, sku:"SKU-SV07", stock:31, rating:5, description:"Full B-vitamin complex for sustained energy and brain function." },
+    { id:"s38", imageKey:"grocery/20.jpg", name:"Probiotic 50 billion CFU capsules",     pack:"30 Caps",   price:22,  originalPrice:30,  discount:27, sku:"SKU-SV08", stock:23, rating:5, description:"High-potency probiotics for gut health and immunity." },
+    { id:"s39", imageKey:"grocery/21.jpg", name:"Collagen peptides beauty formula",      pack:"200g Powder",price:35, originalPrice:47,  discount:26, sku:"SKU-SV09", stock:16, rating:4, description:"Hydrolysed collagen peptides for skin, hair, and joint health." },
+    { id:"s40", imageKey:"grocery/24.jpg", name:"Zinc immune defence daily tablet",      pack:"90 Tabs",   price:10,  originalPrice:13,  discount:23, sku:"SKU-SV10", stock:55, rating:5, description:"Daily zinc supplement for powerful immune defence support." },
+  ],
+};
+
+const GREEN = "#629d23";
+const COLS  = 5;
+const ROWS  = 2;
 
 /* ══════════════════════════════════════════
    ICONS
 ══════════════════════════════════════════ */
-const HeartIcon = () => (
-  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-  </svg>
-);
-const CompareIcon = () => (
-  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-  </svg>
-);
-const EyeIcon = () => (
-  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-  </svg>
-);
-const CartIcon = () => (
-  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-  </svg>
-);
+const HeartIcon    = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>;
+const CompareIcon  = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>;
+const EyeIcon      = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>;
+const CartIcon     = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>;
+const ChevronUp    = () => <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7"/></svg>;
+const ChevronDown  = () => <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7"/></svg>;
+const XIcon        = () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>;
+const ArrowRight   = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>;
+const StarIcon     = ({ filled }) => <svg className={`w-4 h-4 ${filled?"text-yellow-400":"text-gray-200"}`} fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>;
 
-/* ══════════════════════════════════════════
-   STAR RATING
-══════════════════════════════════════════ */
-function StarRating({ rating = 5 }) {
+/* ══════════════════════════════════════════  TOAST */
+function Toast({ message, visible }) {
   return (
-    <div className="flex items-center gap-0.5">
-      {[1,2,3,4,5].map(i => (
-        <svg key={i} className="w-6.5 h-6.5" viewBox="0 0 20 20"
-          fill={i <= rating ? "#f59e0b" : "#d1d5db"}>
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-        </svg>
-      ))}
+    <div className={`fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-white text-sm font-semibold transition-all duration-300 ${visible?"opacity-100 translate-y-0":"opacity-0 translate-y-4 pointer-events-none"}`}
+      style={{ background:GREEN }}>{message}</div>
+  );
+}
+
+/* ══════════════════════════════════════════  STAR RATING */
+function StarRating({ rating = 4 }) {
+  return <div className="flex gap-0.5">{[1,2,3,4,5].map(i=><StarIcon key={i} filled={i<=Math.round(rating)}/>)}</div>;
+}
+
+/* ══════════════════════════════════════════  DISCOUNT RIBBON */
+function DiscountRibbon({ pct }) {
+  if (!pct) return null;
+  return (
+    <div className="absolute top-3 right-3 z-10">
+      <div className="flex flex-col items-center justify-center w-10 text-white text-[10px] font-extrabold leading-tight"
+        style={{ background:"linear-gradient(135deg,#c8960c,#f5c518)", clipPath:"polygon(0 0,100% 0,100% 80%,50% 100%,0 80%)", minHeight:"44px", paddingTop:"6px" }}>
+        <span>{pct}%</span><span>Off</span>
+      </div>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════
-   ACTION BUTTON WITH TOOLTIP
-══════════════════════════════════════════ */
-function ActionBtn({ icon, label }) {
+/* ══════════════════════════════════════════  ACTION BTN */
+function ActionBtn({ icon, label, onClick }) {
   const [tip, setTip] = useState(false);
   return (
     <div className="relative flex items-center justify-center">
-      <button
-        onMouseEnter={() => setTip(true)}
-        onMouseLeave={() => setTip(false)}
-        className="w-8 h-8 rounded-full bg-white text-gray-700 hover:bg-[#629d23] hover:text-white
-                   flex items-center justify-center shadow-md transition-all duration-200 active:scale-90"
-      >
+      <button onClick={e=>{e.stopPropagation();onClick&&onClick();}} onMouseEnter={()=>setTip(true)} onMouseLeave={()=>setTip(false)}
+        className="w-9 h-9 rounded-full bg-white text-gray-700 hover:bg-[#629d23] hover:text-white cursor-pointer flex items-center justify-center shadow transition-all duration-200 active:scale-90">
         {icon}
       </button>
-      {tip && (
-        <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white
-                        text-[10px] font-semibold px-2.5 py-1 rounded-md whitespace-nowrap z-30 pointer-events-none"
-          style={{ animation: "tipIn 0.15s ease both" }}>
-          {label}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"/>
+      {tip && <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-md whitespace-nowrap pointer-events-none z-30">{label}</div>}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════  QTY SELECTOR */
+function QtySelector({ value, onChange }) {
+  return (
+    <div className="flex items-center border border-gray-300 rounded overflow-hidden h-9">
+      <span className="px-2.5 text-sm font-semibold text-gray-700 select-none min-w-[2rem] text-center">{value}</span>
+      <div className="flex flex-col border-l border-gray-300">
+        <button onClick={()=>onChange(value+1)} className="px-1.5 py-0.5 hover:bg-gray-100 text-gray-500 transition-colors border-b border-gray-300 flex items-center justify-center"><ChevronUp/></button>
+        <button onClick={()=>onChange(Math.max(1,value-1))} className="px-1.5 py-0.5 hover:bg-gray-100 text-gray-500 transition-colors flex items-center justify-center"><ChevronDown/></button>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════  NO PRODUCTS */
+function NoProductsFound({ category }) {
+  return (
+    <div className="col-span-5 flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4" style={{background:"rgba(98,157,35,0.07)",border:"2px dashed #d1d5db"}}>
+        <span className="text-3xl">🔍</span>
+      </div>
+      <h3 className="text-[18px] font-bold text-gray-700 mb-2">No products found</h3>
+      <p className="text-[14px] text-gray-400 max-w-xs mb-5">{category?`No products in "${category}" right now.`:"No products available."}</p>
+      <a href="/shop" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white hover:opacity-90" style={{background:GREEN}}>
+        Browse All <ArrowRight/>
+      </a>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════  QUICK VIEW MODAL */
+function QuickViewModal({ product, onClose, onAddToCart, onAddToWishlist }) {
+  const [qty, setQty] = useState(1);
+  if (!product) return null;
+  const image = resolveImage(product.imageKey);
+  const discountedPrice = product.discount ? (product.originalPrice*(1-product.discount/100)).toFixed(2) : Number(product.price).toFixed(2);
+  return (
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4" style={{background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)"}} onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative" onClick={e=>e.stopPropagation()} style={{animation:"modalIn 0.25s cubic-bezier(.16,1,.3,1) both"}}>
+        <button onClick={onClose} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"><XIcon/></button>
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="bg-gray-50 flex items-center justify-center p-8 rounded-tl-2xl rounded-bl-2xl min-h-[300px]">
+            <img src={image} alt={product.name} className="max-h-64 w-full object-contain" onError={e=>{e.target.src="https://placehold.co/300x300/f5f5f5/999?text=Product";}}/>
+          </div>
+          <div className="p-8 flex flex-col gap-3">
+            <h2 className="text-xl font-bold text-gray-900 leading-snug">{product.name}</h2>
+            <div className="flex items-center gap-2"><StarRating rating={product.rating}/><span className="text-sm text-gray-400">(0 reviews)</span></div>
+            <div className="flex items-baseline gap-3">
+              <span className="text-2xl font-extrabold" style={{color:GREEN}}>${discountedPrice}</span>
+              {product.discount>0&&<><span className="text-base text-gray-400 line-through">${product.originalPrice}</span><span className="text-sm font-semibold text-orange-500">{product.discount}% Off</span></>}
+            </div>
+            {product.pack&&<p className="text-sm text-gray-500">Pack: <span className="font-medium text-gray-700">{product.pack}</span></p>}
+            <p className="text-sm text-gray-500">SKU: <span className="font-medium text-gray-700">{product.sku}</span></p>
+            {product.description&&<p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>}
+            <p className="text-sm"><span className={`font-semibold ${product.stock>0?"text-green-600":"text-red-500"}`}>{product.stock>0?`In Stock (${product.stock} left)`:"Out of Stock"}</span></p>
+            <div className="flex items-center gap-3 mt-1">
+              <QtySelector value={qty} onChange={setQty}/>
+              <button onClick={()=>{onAddToCart(product,qty);onClose();}} className="flex-1 flex items-center justify-center gap-2 py-2.5 text-white font-bold rounded-lg text-sm transition-all hover:opacity-90 active:scale-95" style={{background:GREEN}}>Add to Cart <CartIcon/></button>
+            </div>
+            <button onClick={()=>onAddToWishlist(product)} className="flex items-center justify-center gap-2 w-full py-2.5 border-2 text-sm font-bold rounded-lg transition-all hover:bg-gray-50 active:scale-95" style={{borderColor:GREEN,color:GREEN}}><HeartIcon/> Add to Wishlist</button>
+          </div>
         </div>
-      )}
+      </div>
+      <style>{`@keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════  COMPARE MODAL */
+function CompareModal({ products, onClose }) {
+  if (!products||products.length===0) return null;
+  const fields = [
+    {label:"Price",fn:p=>`$${p.discount?(p.originalPrice*(1-p.discount/100)).toFixed(2):p.price}`},
+    {label:"Original Price",fn:p=>`$${p.originalPrice||p.price}`},
+    {label:"Discount",fn:p=>`${p.discount||0}%`},
+    {label:"Pack / Unit",fn:p=>p.pack||"—"},
+    {label:"Rating",fn:p=>p.rating?`${p.rating} / 5`:"—"},
+    {label:"SKU",fn:p=>p.sku||"—"},
+    {label:"Stock",fn:p=>p.stock!=null?(p.stock>0?`${p.stock} units`:"Out of Stock"):"—"},
+  ];
+  return (
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4" style={{background:"rgba(0,0,0,0.5)",backdropFilter:"blur(4px)"}} onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative" onClick={e=>e.stopPropagation()} style={{animation:"modalIn 0.25s cubic-bezier(.16,1,.3,1) both"}}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-800">Product Comparison</h2>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors"><XIcon/></button>
+        </div>
+        <div className="p-6">
+          <div className="grid gap-4 mb-6" style={{gridTemplateColumns:`160px repeat(${products.length},1fr)`}}>
+            <div/>
+            {products.map((p,i)=>(
+              <div key={i} className="flex flex-col items-center text-center gap-2">
+                <div className="w-24 h-24 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden border border-gray-100">
+                  <img src={resolveImage(p.imageKey)} alt={p.name} className="w-full h-full object-contain p-2" onError={e=>{e.target.src="https://placehold.co/96x96/f5f5f5/999?text=P";}}/>
+                </div>
+                <p className="text-sm font-semibold text-gray-800 line-clamp-2">{p.name}</p>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-xl overflow-hidden border border-gray-100">
+            {fields.map((field,fi)=>(
+              <div key={fi} className={`grid items-center gap-4 px-4 py-3 ${fi%2===0?"bg-gray-50":"bg-white"}`} style={{gridTemplateColumns:`160px repeat(${products.length},1fr)`}}>
+                <span className="text-sm font-semibold text-gray-500">{field.label}</span>
+                {products.map((p,i)=><span key={i} className="text-sm font-medium text-gray-800 text-center">{field.fn(p)}</span>)}
+              </div>
+            ))}
+          </div>
+          {products.length===1&&<p className="text-center text-sm text-gray-400 mt-4">Hover another product and click Compare to add a second.</p>}
+        </div>
+      </div>
+      <style>{`@keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
     </div>
   );
 }
 
 /* ══════════════════════════════════════════
-   PRODUCTS DATA
-   → Replace image / title / price with your own
+   SALE CARD — keeps original "On Sale" green badge + red price
+   + adds all actions matching PopularProducts
 ══════════════════════════════════════════ */
-const allProducts = {
-  "Frozen Foods": [
-    { id:1,  rating:5, image:Groc01, title:"Firebase business makes your profit",    pack:"500g Pack", price:50,  original:36 },
-    { id:2,  rating:5, image:Groc19, title:"Netlyfy business makes your profit",     pack:"500g Pack", price:19,  original:36 },
-    { id:3,  rating:5, image:Groc20, title:"Details business makes your profit",     pack:"500g Pack", price:90,  original:36 },
-    { id:4,  rating:5, image:Groc21, title:"Profitable business makes your profit",  pack:"500g Pack", price:30,  original:36 },
-    { id:5,  rating:5, image:Groc22, title:"Valuable business makes your profit",    pack:"500g Pack", price:16,  original:36 },
-    { id:6,  rating:4, image:Groc23, title:"Firebase business makes your profit",    pack:"500g Pack", price:50,  original:36 },
-    { id:7,  rating:5, image:Groc24, title:"Netlyfy business makes your profit",     pack:"500g Pack", price:19,  original:36 },
-    { id:8,  rating:5, image:Groc19, title:"Valuable business makes your profit",    pack:"500g Pack", price:16,  original:36 },
-    { id:9,  rating:5, image:Groc20, title:"System business makes your profit",      pack:"500g Pack", price:15,  original:36 },
-    { id:10, rating:4, image:Groc21, title:"Details business makes your profit",     pack:"500g Pack", price:90,  original:36 },
-  ],
-  "Diet Foods": [
-    { id:11, rating:5, image:Groc21, title:"Green salad diet pack fresh daily",     pack:"250g Pack", price:22, original:30 },
-    { id:12, rating:4, image:Groc20, title:"Berry detox smoothie mix organic",      pack:"300g Pack", price:35, original:44 },
-    { id:13, rating:5, image:Groc19, title:"Oatmeal power breakfast blend",         pack:"500g Pack", price:18, original:20 },
-    { id:14, rating:5, image:Groc24, title:"Natural juice diet drink low sugar",    pack:"1L Bottle", price:12, original:17 },
-    { id:15, rating:4, image:Groc23, title:"Low calorie meal prep fresh pack",      pack:"400g Pack", price:28, original:35 },
-    { id:16, rating:5, image:Groc24, title:"Protein bar chocolate almond crunch",   pack:"60g Bar",   price:5,  original:7  },
-    { id:17, rating:5, image:Groc19, title:"Tropical slim juice blend daily",       pack:"500ml",     price:10, original:14 },
-    { id:18, rating:4, image:Groc20, title:"Whole grain crackers baked light",      pack:"200g Pack", price:8,  original:10 },
-    { id:19, rating:5, image:Groc24, title:"Keto snack mix nuts and seeds",         pack:"300g Pack", price:20, original:25 },
-    { id:20, rating:5, image:Groc20, title:"Fiber boost cereal morning fresh",      pack:"500g Pack", price:15, original:18 },
-  ],
-  "Healthy Foods": [
-    { id:21, rating:5, image:Groc24, title:"Fresh mixed fruit basket organic",      pack:"1kg Pack",  price:45, original:60 },
-    { id:22, rating:4, image:Groc20, title:"Tropical mango lemon juice blend",      pack:"500ml",     price:28, original:34 },
-    { id:23, rating:5, image:Groc21, title:"Whole grain artisan bread loaf",        pack:"400g Loaf", price:8,  original:10 },
-    { id:24, rating:5, image:Groc19, title:"Wild salmon fillet premium quality",    pack:"300g Pack", price:55, original:63 },
-    { id:25, rating:5, image:Groc21, title:"Organic quinoa superfood grain pack",   pack:"500g Pack", price:18, original:22 },
-    { id:26, rating:4, image:Groc23, title:"Avocado spread healthy fat blend",      pack:"200g Pack", price:12, original:15 },
-    { id:27, rating:5, image:Groc20, title:"Greek yogurt plain probiotic rich",     pack:"500g Cup",  price:7,  original:9  },
-    { id:28, rating:5, image:Groc23, title:"Chia seeds omega boost superfood",      pack:"250g Pack", price:14, original:18 },
-    { id:29, rating:4, image:Groc22, title:"Almond butter crunchy natural spread",  pack:"300g Jar",  price:16, original:20 },
-    { id:30, rating:5, image:Groc19, title:"Turmeric golden milk powder blend",     pack:"200g Pack", price:22, original:28 },
-  ],
-  "Vitamin Items": [
-    { id:31, rating:5, image:Groc20, title:"Vitamin C gummies citrus flavour",      pack:"60 Gummies", price:15, original:19 },
-    { id:32, rating:5, image:Groc21, title:"Omega 3 fish oil capsules daily",       pack:"90 Caps",    price:30, original:40 },
-    { id:33, rating:4, image:Groc20, title:"Multivitamin complete daily dose",      pack:"120 Tabs",   price:25, original:28 },
-    { id:34, rating:5, image:Groc19, title:"Iron & zinc mineral boost complex",     pack:"60 Caps",    price:20, original:29 },
-    { id:35, rating:5, image:Groc23, title:"Magnesium glycinate sleep support",     pack:"90 Caps",    price:18, original:24 },
-    { id:36, rating:4, image:Groc21, title:"Vitamin D3 sunlight supplement",        pack:"90 Softgels",price:12, original:16 },
-    { id:37, rating:5, image:Groc19, title:"B-complex energy boost formula",        pack:"60 Tabs",    price:14, original:18 },
-    { id:38, rating:5, image:Groc20, title:"Probiotic 50 billion CFU capsules",     pack:"30 Caps",    price:22, original:30 },
-    { id:39, rating:4, image:Groc21, title:"Collagen peptides beauty formula",      pack:"200g Powder",price:35, original:45 },
-    { id:40, rating:5, image:Groc24, title:"Zinc immune defence daily tablet",      pack:"90 Tabs",    price:10, original:14 },
-  ],
-};
-
-const ROWS = 2;   // show 2 rows of 5 = 10 items per tab (desktop)
-
-/* ══════════════════════════════════════════
-   PRODUCT CARD
-══════════════════════════════════════════ */
-function SaleCard({ rating, image, title, pack, price, original }) {
+function SaleCard({ product, onQuickView, onCompare, onWishlistAdd, onCartAdd }) {
   const [hovered, setHovered] = useState(false);
+  const [qty, setQty]         = useState(1);
+
+  const image = resolveImage(product.imageKey);
+  const discountedPrice = product.discount
+    ? (product.originalPrice*(1-product.discount/100)).toFixed(2)
+    : Number(product.price).toFixed(2);
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={()=>setHovered(true)} onMouseLeave={()=>setHovered(false)}
       className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden cursor-pointer w-full"
       style={{
-        boxShadow: hovered ? "0 10px 36px rgba(0,0,0,0.13)" : "0 1px 4px rgba(0,0,0,0.06)",
-        transform: hovered ? "translateY(-4px)" : "translateY(0)",
-        transition: "box-shadow 0.3s ease, transform 0.3s ease",
+        boxShadow: hovered?"0 10px 36px rgba(0,0,0,0.13)":"0 1px 4px rgba(0,0,0,0.06)",
+        transform: hovered?"translateY(-4px)":"translateY(0)",
+        transition:"box-shadow 0.3s ease,transform 0.3s ease",
       }}
     >
       {/* Image area */}
-      <div className="relative flex items-center justify-center bg-white overflow-hidden"
-        style={{ height: "180px" }}>
-
-        {/* ON SALE badge */}
-        <div className="absolute top-0 left-0 z-10 bg-[#629d23] text-white text-[10px] font-extrabold
-                        px-3 py-1.5 rounded-br-xl tracking-wide uppercase">
+      <div className="relative bg-gray-50 flex items-center justify-center overflow-hidden" style={{height:"200px"}}>
+        {/* "On Sale" badge — original design */}
+        <div className="absolute top-0 left-0 z-10 bg-[#629d23] text-white text-[10px] font-extrabold px-3 py-1.5 rounded-br-xl tracking-wide uppercase">
           On Sale
         </div>
+        {/* Discount % ribbon */}
+        <DiscountRibbon pct={product.discount}/>
 
-        {/* Product image */}
-        <img
-          src={image}
-          alt={title}
+        <img src={image} alt={product.name}
           className="w-full h-full object-contain p-4 transition-transform duration-500"
-          style={{ transform: hovered ? "scale(1.08)" : "scale(1)" }}
+          style={{transform:hovered?"scale(1.08)":"scale(1)"}}
+          onError={e=>{e.target.src="https://placehold.co/300x300/f5f5f5/999?text=Product";}}
         />
 
-        {/* Hover action strip */}
-        <div
-          className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 py-2.5"
+        {/* Hover action strip — identical to PopularProducts */}
+        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 py-2.5"
           style={{
-            background: "rgba(76,174,76,0.90)",
-            transform: hovered ? "translateY(0)" : "translateY(110%)",
-            transition: "transform 0.3s cubic-bezier(.16,1,.3,1)",
-          }}
-        >
-          <ActionBtn icon={<HeartIcon />}   label="Add to Wishlist" />
-          <ActionBtn icon={<CompareIcon />} label="Compare" />
-          <ActionBtn icon={<EyeIcon />}     label="Quick View" />
+            background:"rgba(76,174,76,0.92)",
+            transform:hovered?"translateY(0)":"translateY(110%)",
+            transition:"transform 0.3s cubic-bezier(.16,1,.3,1)",
+          }}>
+          <ActionBtn icon={<HeartIcon/>}   label="Add to Wishlist" onClick={()=>onWishlistAdd(product)}/>
+          <ActionBtn icon={<CompareIcon/>} label="Compare"         onClick={()=>onCompare(product)}/>
+          <ActionBtn icon={<EyeIcon/>}     label="Quick View"      onClick={()=>onQuickView(product)}/>
         </div>
       </div>
 
       {/* Info */}
-      <div className="flex flex-col p-3 flex-1">
-        <div className="flex flex-col gap-1 flex-1">
-          <StarRating rating={rating} />
-          <h4 className="text-[16px] font-bold text-gray-900 leading-snug line-clamp-2 mt-0.5">{title}</h4>
-          <p className="text-[14px] text-gray-400">{pack}</p>
-          <div className="flex items-baseline gap-2 mt-0.5">
-            <span className="text-[20px] font-extrabold text-red-500">${price}.00</span>
-            <span className="text-[14px] text-gray-400 line-through">${original}.00</span>
-          </div>
+      <div className="flex flex-col gap-1.5 p-3 flex-1">
+        <StarRating rating={product.rating}/>
+        <h4 className="text-[15px] font-bold text-gray-900 leading-snug line-clamp-2 mt-0.5">{product.name}</h4>
+        <p className="text-[13px] text-gray-400">{product.pack}</p>
+        <div className="flex items-baseline gap-2 mt-0.5">
+          {/* Red sale price — original style */}
+          <span className="text-[18px] font-extrabold text-red-500">${discountedPrice}</span>
+          {product.discount>0&&<span className="text-[13px] text-gray-400 line-through">${product.originalPrice}</span>}
         </div>
-
-        {/* Add button — pinned to bottom */}
-        <button
-          className="mt-3 w-full flex items-center justify-center gap-2 bg-[#629d23] hover:bg-[#629d23]
-                     text-white font-bold text-sm py-2.5 rounded-lg transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md"
-        >
-          Add <CartIcon />
-        </button>
+        <div className="flex items-center justify-between mt-2 gap-2">
+          <QtySelector value={qty} onChange={setQty}/>
+          <button onClick={()=>onCartAdd(product,qty)}
+            className="flex items-center gap-1.5 border border-[#629d23] text-[#629d23] hover:bg-[#4cae4c] hover:text-white px-3 py-2 rounded text-sm font-bold transition-all duration-200 active:scale-95 cursor-pointer">
+            Add <CartIcon/>
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
 /* ══════════════════════════════════════════
-   THIS WEEK'S SALES  (main export)
-   Props:
-     title    — heading text
-     data     — { [category]: products[] }
-     rows     — how many rows to show on desktop (default 2)
+   THIS WEEK'S SALES — MAIN EXPORT
 ══════════════════════════════════════════ */
 export default function ThisWeekSales({
   title = "Don't miss this week's sales",
   data  = allProducts,
   rows  = ROWS,
 }) {
+  const dispatch = useDispatch();
   const tabs = Object.keys(data);
-  const [active, setActive] = useState(tabs[0]);
 
-  // On desktop we show 5 cols × rows rows = rows*5 items
-  // On smaller breakpoints fewer cols so we show all items up to rows*5
-  const products = (data[active] || []).slice(0, rows * 5);
+  const [active,           setActive]           = useState(tabs[0]);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [compareProducts,  setCompareProducts]  = useState([]);
+  const [showCompare,      setShowCompare]       = useState(false);
+  const [toast,            setToast]             = useState({ message:"", visible:false });
+
+  const showToast = (message) => {
+    setToast({ message, visible:true });
+    setTimeout(() => setToast(t=>({...t,visible:false})), 3000);
+  };
+
+  /* Wishlist — identical to PopularProducts */
+  const handleAddToWishlist = (product) => {
+    dispatch(addWishlist({
+      productId: product.id,
+      name:      product.name,
+      price: parseFloat(product.discount
+        ? (product.originalPrice*(1-product.discount/100)).toFixed(2)
+        : product.price),
+      image: product.imageKey,
+      sku:   product.sku,
+    }));
+    showToast(`"${product.name.slice(0,28)}..." added to wishlist!`);
+  };
+
+  /* Cart — identical to PopularProducts */
+  const handleAddToCart = (product, qty=1) => {
+    dispatch(addCartItem({
+      productId: product.id,
+      name:      product.name,
+      price: parseFloat(product.discount
+        ? (product.originalPrice*(1-product.discount/100)).toFixed(2)
+        : product.price),
+      image: product.imageKey,
+      qty,
+    }));
+    showToast(`"${product.name.slice(0,28)}..." added to cart!`);
+  };
+
+  /* Compare — identical to PopularProducts */
+  const handleCompare = (product) => {
+    setCompareProducts(prev => {
+      if (prev.find(p=>p.id===product.id)) { setShowCompare(true); return prev; }
+      const updated = [...prev.slice(-1), product];
+      setShowCompare(true);
+      return updated;
+    });
+  };
+
+  const products = (data[active]||[]).slice(0, rows*COLS);
 
   return (
-    <section
-      className="w-full bg-gray-50 py-10 px-4 md:px-8"
-      style={{ fontFamily: "'Barlow', sans-serif" }}
-    >
-      <style>{`
-        @keyframes tipIn {
-          from { opacity:0; transform:translateX(-50%) translateY(4px); }
-          to   { opacity:1; transform:translateX(-50%) translateY(0); }
-        }
-        @keyframes saleSlide {
-          from { opacity:0; transform:translateY(12px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-      `}</style>
+    <section className="w-full bg-gray-50 py-10 px-4 md:px-8" style={{fontFamily:"'Barlow', sans-serif"}}>
+      <style>{`@keyframes saleSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}`}</style>
 
-      <div /*className="max-w-screen-xl mx-auto"*/>
-
-        {/* ── Header row ── */}
+      <div>
+        {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-7">
-          <h2 className="text-[30px] md:text-[30px] font-medium text-gray-900 tracking-tight">
-            {title}
-          </h2>
-
-          {/* Tabs */}
+          <h2 className="text-[28px] md:text-[30px] font-medium text-gray-900 tracking-tight">{title}</h2>
           <div className="flex flex-wrap items-center gap-1">
             {tabs.map(tab => {
-              const isActive = active === tab;
+              const isActive = active===tab;
               return (
-                <button
-                  key={tab}
-                  onClick={() => setActive(tab)}
-                  className="px-4 py-1.5 rounded-full text-[16px] font-semibold transition-all duration-200"
+                <button key={tab} onClick={()=>setActive(tab)}
+                  className="px-4 py-1.5 rounded-full text-[15px] font-semibold transition-all duration-200"
                   style={{
-                    background: isActive ? "#629d23" : "transparent",
-                    color:      isActive ? "#fff"    : "#6b7280",
-                    boxShadow:  isActive ? "0 2px 10px rgba(76,174,76,0.35)" : "none",
-                  }}
-                >
+                    background: isActive?GREEN:"transparent",
+                    color:      isActive?"#fff":"#6b7280",
+                    boxShadow:  isActive?"0 2px 10px rgba(76,174,76,0.35)":"none",
+                  }}>
                   {tab}
                 </button>
               );
@@ -276,31 +391,41 @@ export default function ThisWeekSales({
           </div>
         </div>
 
-        {/* ── Product grid ──
-            Responsive cols:
-              1 col   (< sm  / phone)
-              2 cols  (sm    / small tablet)
-              3 cols  (md    / tablet)
-              4 cols  (lg    / small desktop)
-              5 cols  (xl    / full desktop)
-        */}
-        <div
-          key={active}
-          className="grid gap-4"
-          style={{
-            gridTemplateColumns: "repeat(1, minmax(0,1fr))",
-            animation: "saleSlide 0.25s ease both",
-          }}
-        >
-          {/* We use inline responsive via a wrapper trick — Tailwind classes handle breakpoints */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {products.map(p => (
-              <SaleCard key={p.id} {...p} />
-            ))}
-          </div>
+        {/* Grid — 1→2→3→4→5 cols */}
+        <div key={active}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+          style={{animation:"saleSlide 0.25s ease both"}}>
+          {products.length===0 ? (
+            <NoProductsFound category={active}/>
+          ) : (
+            products.map(product=>(
+              <SaleCard
+                key={product.id}
+                product={product}
+                onQuickView={setQuickViewProduct}
+                onCompare={handleCompare}
+                onWishlistAdd={handleAddToWishlist}
+                onCartAdd={handleAddToCart}
+              />
+            ))
+          )}
         </div>
-
       </div>
+
+      {quickViewProduct && (
+        <QuickViewModal
+          product={quickViewProduct}
+          onClose={()=>setQuickViewProduct(null)}
+          onAddToCart={handleAddToCart}
+          onAddToWishlist={handleAddToWishlist}
+        />
+      )}
+
+      {showCompare && (
+        <CompareModal products={compareProducts} onClose={()=>setShowCompare(false)}/>
+      )}
+
+      <Toast message={toast.message} visible={toast.visible}/>
     </section>
   );
 }

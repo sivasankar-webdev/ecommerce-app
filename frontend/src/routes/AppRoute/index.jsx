@@ -24,7 +24,9 @@ const VendorGrid = lazy(() => import("../../pages/vendor/VendorGrid"));
 const VendorDetails = lazy(() => import("../../pages/vendor/VendorDetails"));
 const WishListPage = lazy(() => import("../../features/wishlist/WishlistPage"));
 const PopularProducts = lazy(() => import("../../pages/shop/PopularProducts"));
-const CartPage = lazy(() => import("../../features/cart/CartPage"))
+const CartPage = lazy(() => import("../../features/cart/CartPage"));
+const NewProduct = lazy(() => import("../../pages/shop/NewProducts"));
+const Account = lazy(() => import("../../pages/account"));
 
 export default function AppRoutes() {
   return (
@@ -59,7 +61,9 @@ export default function AppRoutes() {
               <Route path="/blog-details" element={<BlogDetails />} />
               <Route path="/wishlist" element={<WishListPage />} />
               <Route path="/popular-product" element={<PopularProducts />} />
+              <Route path="/new-product" element={<NewProduct />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/account" element={<Account />} />
 
               <Route path="*" element={<NotFound />} />
             </Route>
