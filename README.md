@@ -14,11 +14,11 @@
 
 <br/>
 
-[🌐 Live Demo](https://ekomart.railway.app) · [✨ Request Feature](https://github.com/yourusername/ekomart/issues)
+[🌐 Live Demo](https://ecom-app-mern.vercel.app/) · [✨ Request Feature](https://github.com/sivasankar-webdev/issues)
 
 <br/>
 
-![App Screenshot](https://raw.githubusercontent.com/yourusername/ekomart/main/docs/screenshot.png)
+![App Screenshot](https://raw.githubusercontent.com/sivasankar-webdev/main/docs/screenshot.png)
 
 </div>
 
