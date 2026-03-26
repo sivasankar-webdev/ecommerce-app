@@ -1,10 +1,8 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/yourusername/ekomart/main/frontend/public/logo.png" alt="EkoMart Logo" width="120" height="120" />
+# 🛒 Full-Stack MERN E-Commerce Platform
 
-# 🛒 EkoMart — Full-Stack MERN E-Commerce Platform
-
-**A production-ready, full-featured e-commerce application built with the MERN stack**
+**A production-ready, e-commerce application built with the MERN stack**
 
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
@@ -16,11 +14,11 @@
 
 <br/>
 
-[🌐 Live Demo](https://ekomart.railway.app) · [📖 API Docs](https://ekomart-api.railway.app/docs) · [🐛 Report Bug](https://github.com/yourusername/ekomart/issues) · [✨ Request Feature](https://github.com/yourusername/ekomart/issues)
+[🌐 Live Demo](https://ekomart.railway.app) · [✨ Request Feature](https://github.com/yourusername/ekomart/issues)
 
 <br/>
 
-![EkoMart Screenshot](https://raw.githubusercontent.com/yourusername/ekomart/main/docs/screenshot.png)
+![App Screenshot](https://raw.githubusercontent.com/yourusername/ekomart/main/docs/screenshot.png)
 
 </div>
 
@@ -37,8 +35,6 @@
 - [📡 API Reference](#-api-reference)
 - [🗄️ Database Schema](#️-database-schema)
 - [🚀 Deployment](#-deployment)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
 
 ---
 
@@ -48,7 +44,6 @@
 - **Product Catalog** — Browse products by category, brand, color, and price range
 - **Advanced Filtering & Sorting** — Multi-filter sidebar with real-time results
 - **Quick View Modal** — Preview product details without leaving the listing page
-- **Product Comparison** — Compare up to 2 products side by side
 - **Search** — Full-text product search across name and category
 - **Responsive Grid / List Views** — Toggle between 4, 3, 2 column and list layouts
 
@@ -58,7 +53,6 @@
 - **Coupon Codes** — Apply discount codes with percentage-off support
 - **Shipping Calculator** — Free, flat-rate, and local pickup options
 - **Free Shipping Progress Bar** — Visual indicator showing spend-to-unlock threshold
-- **Multi-step Checkout** — Address form → Payment → Confirmation
 
 ### ❤️ Wishlist
 - **Add / Remove Products** — Toggle from any product card or detail page
@@ -147,15 +141,14 @@
 | [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | 2.x | Password hashing |
 | [cors](https://github.com/expressjs/cors) | 2.x | Cross-origin resource sharing |
 | [dotenv](https://github.com/motdotla/dotenv) | 16.x | Environment variable loader |
-| [express-rate-limit](https://github.com/nfriedly/express-rate-limit) | 7.x | API rate limiting |
 | [cookie-parser](https://github.com/expressjs/cookie-parser) | 1.x | Cookie middleware |
 
 ### Database & Hosting
 | Service | Purpose |
 |---------|---------|
 | [MongoDB Atlas](https://www.mongodb.com/atlas) | Cloud database (Free M0 tier) |
-| [Railway](https://railway.app/) | Backend deployment |
-| [Vercel](https://vercel.com/) / [Netlify](https://netlify.com/) | Frontend deployment |
+| [Render](https://render.com//) | Backend deployment |
+| [Vercel](https://vercel.com/) | Frontend deployment |
 
 ---
 
@@ -274,8 +267,8 @@ Git                 https://git-scm.com/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/ekomart.git
-cd ekomart
+git clone https://github.com/sivasankar-webdev/ecommerce-app.git
+cd project_name
 ```
 
 ### 2. Setup Backend
@@ -337,10 +330,10 @@ NODE_ENV=development
 
 # ── Database ────────────────────────────
 # Local development:
-MONGODB_URI=mongodb://localhost:27017/ekomart_db
+MONGODB_URI=mongodb://localhost:27017/ecommerce_db
 
 # Production (MongoDB Atlas):
-# MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/ekomart_db?retryWrites=true&w=majority
+# MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/ecommerce_db?retryWrites=true&w=majority
 
 # ── Authentication ──────────────────────
 JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
@@ -358,7 +351,7 @@ CLIENT_URL=http://localhost:5173
 VITE_API_URL=http://localhost:5000/api
 
 # Production (after backend is deployed):
-# VITE_API_URL=https://your-backend.railway.app/api
+# VITE_API_URL=https://your-backend.render.app/api
 ```
 
 > ⚠️ **Never commit `.env` files to Git.** Both `.env` files are already in `.gitignore`.
@@ -368,7 +361,7 @@ VITE_API_URL=http://localhost:5000/api
 ```env
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/ekomart_db
+MONGODB_URI=mongodb://localhost:27017/ecommerce_db
 JWT_SECRET=change_this_to_a_random_string
 JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173
@@ -542,12 +535,12 @@ Authorization: Bearer <your_jwt_token>
 
 ## 🚀 Deployment
 
-### Deploy Backend → Railway
+### Deploy Backend → Render
 
 1. Push your code to GitHub
-2. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub**
+2. Go to [render.app](https://render.com.app) → **New Project** → **Deploy from GitHub**
 3. Select your repository, choose the `backend` folder as root
-4. Add environment variables in Railway dashboard:
+4. Add environment variables in Render dashboard:
 
 ```
 MONGODB_URI  = mongodb+srv://user:pass@cluster.mongodb.net/ekomart_db?retryWrites=true&w=majority
@@ -558,14 +551,14 @@ CLIENT_URL   = https://your-frontend.netlify.app
 PORT         = 5000
 ```
 
-5. Railway auto-deploys on every push to `main`
-6. Your API URL: `https://ekomart-api.railway.app`
+5. Render auto-deploys on every push to `main`
+6. Your API URL: `https://ecommerce-api.render.app`
 
 ---
 
 ### Deploy Frontend → Netlify
 
-1. Go to [netlify.com](https://netlify.com) → **Add new site** → **Import from Git**
+1. Go to [vercel.com](https://vercel.com) → **Add new site** → **Import from Git**
 2. Select your repository, set **Base directory** to `frontend`
 3. Build settings:
    ```
@@ -574,26 +567,9 @@ PORT         = 5000
    ```
 4. Add environment variable:
    ```
-   VITE_API_URL = https://ekomart-api.railway.app/api
+   VITE_API_URL = https://ecommerce-api.render.app/api
    ```
 5. Click **Deploy site**
-
----
-
-### Deploy Frontend → Vercel
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# From the frontend directory
-cd frontend
-vercel
-
-# Set environment variable
-vercel env add VITE_API_URL
-# Enter: https://ekomart-api.railway.app/api
-```
 
 ---
 
@@ -615,53 +591,16 @@ vercel env add VITE_API_URL
 ```bash
 npm run dev       # Start with nodemon (hot-reload)
 npm start         # Start production server
-npm run lint      # Run ESLint
 ```
 
 ### Frontend
 
 ```bash
-npm run dev       # Start Vite dev server
-npm run build     # Build for production
-npm run preview   # Preview production build locally
-npm run lint      # Run ESLint
+npm run dev or npm start   # Start Vite dev server
+npm run build              # Build for production
+npm run preview            # Preview production build locally
+npm run lint               # Run ESLint
 ```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. **Fork** the repository
-2. **Create** a feature branch:
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit** your changes with a descriptive message:
-   ```bash
-   git commit -m "feat: add amazing feature"
-   ```
-4. **Push** to your branch:
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. Open a **Pull Request** — describe what you changed and why
-
-### Commit Convention
-
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-| Prefix | Use for |
-|--------|---------|
-| `feat:` | New feature |
-| `fix:` | Bug fix |
-| `docs:` | Documentation changes |
-| `style:` | Formatting, no logic change |
-| `refactor:` | Code restructure |
-| `perf:` | Performance improvement |
-| `test:` | Adding or updating tests |
-| `chore:` | Build process, dependencies |
 
 ---
 
@@ -670,39 +609,6 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 - [ ] Order tracking uses mock data — real courier API integration pending
 - [ ] Address management is frontend-only (state-based) — backend persistence coming
 - [ ] Product images use local asset keys — CDN/Cloudinary integration planned
-
----
-
-## 🗺️ Roadmap
-
-- [ ] 🔍 Elasticsearch-powered search
-- [ ] 💳 Stripe / Razorpay payment gateway
-- [ ] 📧 Order confirmation emails (Nodemailer)
-- [ ] 📊 Admin dashboard with sales analytics
-- [ ] ⭐ Product reviews and ratings system
-- [ ] 🌍 Multi-currency support
-- [ ] 📱 PWA (Progressive Web App) support
-- [ ] 🔔 Push notifications for order updates
-
----
-
-## 👨‍💻 Author
-
-**Your Name**
-
-[![GitHub](https://img.shields.io/badge/GitHub-yourusername-181717?style=flat-square&logo=github)](https://github.com/yourusername)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-yourprofile-0A66C2?style=flat-square&logo=linkedin)](https://linkedin.com/in/yourprofile)
-[![Portfolio](https://img.shields.io/badge/Portfolio-yoursite.dev-629d23?style=flat-square&logo=vercel)](https://yoursite.dev)
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License — free to use, modify, and distribute with attribution.
-```
 
 ---
 
